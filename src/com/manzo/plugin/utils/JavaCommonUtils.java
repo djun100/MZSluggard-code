@@ -71,11 +71,43 @@ public class JavaCommonUtils {
         }
     }
 
+    public static void importSelProjectHcbPackage(PsiClass currentClass, Project project, String importClassName) {
+        try {
+            PsiClass[] importClasses = PsiShortNamesCache.getInstance(project).getClassesByName(importClassName, GlobalSearchScope.allScope(project));
+            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
+            PsiClass tPsiClass = null;
+            for (PsiClass mPsiClass : importClasses) {
+                String nameStr = mPsiClass.getQualifiedName();
+                if (StringUtils.isBlank(nameStr) || nameStr.contains("map")) {
+                    continue;
+                }
+                tPsiClass = mPsiClass;
+                break;
+            }
+            if (tPsiClass == null) {
+                return;
+            }
+            PsiImportStatement importStatement = elementFactory.createImportStatement(tPsiClass);
+            ((PsiJavaFile) currentClass.getContainingFile()).getImportList().add(importStatement);
+        } catch (Exception e) {
+            //do noting
+        }
+    }
+
     public static void importSelfProjectPackageRunWriteAction(PsiClass currentClass, Project project, String importClassName) {
         WriteCommandAction.runWriteCommandAction(project, new Runnable() {
             @Override
             public void run() {
                 importSelProjectPackage(currentClass, project, importClassName);
+            }
+        });
+    }
+
+    public static void importSelfProjectPackageRunWriteActionHcb(PsiClass currentClass, Project project, String importClassName) {
+        WriteCommandAction.runWriteCommandAction(project, new Runnable() {
+            @Override
+            public void run() {
+                importSelProjectHcbPackage(currentClass, project, importClassName);
             }
         });
     }

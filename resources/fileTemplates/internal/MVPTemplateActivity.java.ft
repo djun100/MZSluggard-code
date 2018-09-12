@@ -1,18 +1,40 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 import android.app.Activity;
 import android.os.Bundle;
+import android.content.Intent;
 /**
  * Author: ${USER}
  * Created on ${DATE}
  */
-public class ${NAME} extends Activity implements ${SELF_IVIEW_NAME}{
+public class ${NAME} extends BaseActivity implements ${SELF_IVIEW_NAME}{
 private ${SELF_PRESENT_NAME} mPresenter;
-
+public static void start(Activity activity) {
+        Intent intent = new Intent(activity, ${NAME}.class);
+        activity.startActivity(intent);
+        }
 @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new ${SELF_PRESENT_NAME}(this);
         //TODO setContentView();
+
+        }
+@Override
+protected int getTitleResourceId() {
+        return 0;
+        }
+
+@Override
+protected int getContentViewLayout() {
+        return 0;
+        }
+@Override
+protected void setupView() {
+
+        }
+
+@Override
+protected void registerListeners() {
 
         }
 

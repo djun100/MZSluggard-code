@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.manzo.android.plugin.layout</id>
     <name>ManzoAndroidPlugin</name>
-    <version>1.0.3</version>
+    <version>1.0.1</version>
     <vendor email="1104724999@qq.com" url="https://blog.csdn.net/shenjinalin123">Manzo Shen</vendor>
 
     <description><![CDATA[
@@ -22,9 +22,8 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-    <!-- uncomment to enable plugin in all products
+    <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
-    -->
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -37,20 +36,24 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="SimpleGenerateCodeByLayout" class="com.manzo.plugin.actions.SimpleGenerateCodeAction"
-                text="MSimpleGenerateByLayout">
-            <add-to-group group-id="GenerateGroup" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta M"/>
-        </action>
-        <action id="GenerateCodeInAdapter" class="com.manzo.plugin.actions.GenerateCodeInAdapterAction"
-                text="MGenerateAdapterByLayout">
-            <add-to-group group-id="GenerateGroup" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta B"/>
-        </action>
-        <action id="GenerateMVPGroupAction" class="com.manzo.plugin.actions.GenerateMVPGroupAction"
-                text="MGenerateMVPGroup" icon="/icons/icon_mvp.png">
+        <group id="ManzoPlugin.AndroidClassGroup" text="MAndroidGenerateFile" popup="true" icon="/icons/icon_mvp.png">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
+            <action id="GenerateMVPGroupAction" class="com.manzo.plugin.actions.GenerateMVPGroupAction"
+                    text="MGenerateMVPGroup">
+            </action>
+        </group>
+        <group id="ManzoPlugin.AndroidCodeGroup" text="MAndroidGenerateCode" popup="true" icon="/icons/icon_mvp.png">
+            <add-to-group group-id="GenerateGroup" anchor="first"/>
+            <action id="SimpleGenerateCodeByLayout" class="com.manzo.plugin.actions.SimpleGenerateCodeAction"
+                    text="MSimpleGenerateByLayout">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta M"/>
+            </action>
+            <action id="GenerateCodeInAdapter" class="com.manzo.plugin.actions.GenerateCodeInAdapterAction"
+                    text="MGenerateAdapterByLayout">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta B"/>
+            </action>
+        </group>
+
     </actions>
 
 </idea-plugin>

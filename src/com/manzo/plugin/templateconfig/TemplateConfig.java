@@ -19,6 +19,7 @@ public class TemplateConfig {
 
     //预置类名称
     public static final String BASE_PRESENTER_CLASS = "BasePresenter";
+    public static final String HCB_BASE_ACTIVITY_CLASS = "BaseActivity";
 
     /**
      * 通过模板MVPBaseViewInterface 创建Interface

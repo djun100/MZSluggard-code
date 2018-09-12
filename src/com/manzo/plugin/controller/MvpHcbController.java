@@ -79,6 +79,7 @@ public class MvpHcbController {
         //创建activity
         String selfActivity = activityName + "Activity";
         PsiClass selfActivityClass = TemplateConfig.createMVPActivityByTemplate(directory, selfActivity, selfIViewName, selfPresentName);
+        JavaCommonUtils.importSelfProjectPackageRunWriteActionHcb(selfActivityClass, fatherProject, TemplateConfig.HCB_BASE_ACTIVITY_CLASS);
         CodeStyleManager.getInstance(fatherProject).reformat(selfActivityClass);
 
     }
