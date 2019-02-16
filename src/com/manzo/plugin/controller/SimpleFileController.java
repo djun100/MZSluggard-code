@@ -34,7 +34,8 @@ public class SimpleFileController {
 
     }
 
-    public static void loadFile(@NotNull Project project, Editor editor, PsiFile currentFile, List<AndroidView> androidViews) throws IncorrectOperationException {
+    public static void loadFile(@NotNull Project project, Editor editor, PsiFile currentFile,
+                                List<AndroidView> androidViews) throws IncorrectOperationException {
         int offset = editor.getCaretModel().getOffset();
         //获取到正在编辑器中编辑的方法体。
         PsiElement psiElement = currentFile.findElementAt(offset);
