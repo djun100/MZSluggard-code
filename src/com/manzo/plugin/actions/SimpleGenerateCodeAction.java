@@ -18,6 +18,7 @@ import java.net.URL;
 
 /**
  * Created by shenjianlin on 2018/8/30.
+ * 导入Activity关联layout的控件
  */
 public class SimpleGenerateCodeAction extends AnAction {
 

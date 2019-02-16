@@ -1,35 +1,32 @@
 package com.manzo.plugin.dialog;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.JavaDirectoryService;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import com.manzo.plugin.controller.MvpHcbController;
-import com.manzo.plugin.utils.JavaCommonUtils;
+import com.manzo.plugin.controller.ListCodeAdapterController;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.event.*;
 
 /**
- * 生成mvp的交互dialog
+ * 生成Adapter交互dialog
  */
-public class MVPInputDialog extends JDialog {
+
+public class ListAdapterDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JTextField mActivityNameEditor;
-    private JTextPane mTips;
+    private JTextField mBeanEditText;
+    private JTextField mAdapterEditText;
+    private JTextArea tipsTextArea;
     private final AnActionEvent mAnActionEvent;
 
 
-    public MVPInputDialog(AnActionEvent e) {
+    public ListAdapterDialog(AnActionEvent e) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         mAnActionEvent = e;
+
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -60,13 +57,17 @@ public class MVPInputDialog extends JDialog {
 
     private void onOK() {
         // add your code here
-        String activity = mActivityNameEditor.getText();
-        if (StringUtils.isBlank(activity)) {
-            mTips.setText("请填写activity名称");
+        String adapterName = mAdapterEditText.getText();
+        if (StringUtils.isBlank(adapterName)) {
+            tipsTextArea.setText("请填写adapter名称");
             return;
         }
-        //TODO 添加代码操作
-        MvpHcbController.generateMvpCode(activity, mAnActionEvent);
+        String beanName = mBeanEditText.getText();
+        if (StringUtils.isBlank(beanName)) {
+            tipsTextArea.setText("请填写BeanName");
+            return;
+        }
+        ListCodeAdapterController.generateAdapterCode(adapterName, beanName, mAnActionEvent);
         dispose();
     }
 
