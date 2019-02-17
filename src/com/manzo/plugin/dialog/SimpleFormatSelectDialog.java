@@ -1,15 +1,14 @@
 package com.manzo.plugin.dialog;
 
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
+import com.cy.util.UtilPlugin;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.psi.PsiFile;
 import com.manzo.plugin.bean.AndroidView;
 import com.manzo.plugin.bean.CheckHeaderCellRenderer;
-import com.manzo.plugin.bean.MZJXTableModel;
+import com.manzo.plugin.bean.AndroidViewsTableModel;
 import com.manzo.plugin.controller.SimpleFileController;
 import com.manzo.plugin.utils.AndroidUtils;
 import org.jdesktop.swingx.JXTable;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
@@ -26,30 +25,27 @@ public class SimpleFormatSelectDialog extends JDialog {
     private JScrollPane mScrollTable;
     private List<AndroidView> mAndroidViews;
 
-    private final Project mProject;
-    private final Editor mEditor;
-    private final PsiFile mCurrentFile;
+    private final AnActionEvent mAnActionEvent;
 
-    public static void showDialog(@NotNull Project project, Editor editor, PsiFile currentFile) {
-        String layoutName = editor.getSelectionModel().getSelectedText();
-        PsiFile xmlFile = AndroidUtils.findXmlResource(project, layoutName);
+    public static void showDialog(AnActionEvent anActionEvent) {
+        String layoutName = UtilPlugin.getSelectedText(anActionEvent);
+        PsiFile xmlFile = UtilPlugin.getFirstPsiFileByFileName(anActionEvent,layoutName+".xml");
+
         if (xmlFile == null) {
             return;
         }
         //获取到layout中的view对象
-        List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(xmlFile);
+        List<AndroidView> androidViews = AndroidUtils.getAndroidViewsFromXML(xmlFile);
 
-        SimpleFormatSelectDialog editDialog = new SimpleFormatSelectDialog(project, editor, currentFile, androidViews);
+        SimpleFormatSelectDialog editDialog = new SimpleFormatSelectDialog(anActionEvent, androidViews);
         editDialog.setSize(600, 360);
         editDialog.setLocationRelativeTo(null);
         editDialog.setResizable(false);
         editDialog.setVisible(true);
     }
 
-    public SimpleFormatSelectDialog(@NotNull Project project, Editor editor, PsiFile currentFile, List<AndroidView> androidViews) {
-        this.mProject = project;
-        this.mEditor = editor;
-        this.mCurrentFile = currentFile;
+    public SimpleFormatSelectDialog(AnActionEvent anActionEvent, List<AndroidView> androidViews) {
+        this.mAnActionEvent=anActionEvent;
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -84,13 +80,13 @@ public class SimpleFormatSelectDialog extends JDialog {
     }
 
     private void initViewTable(List<AndroidView> androidViews) {
-        MZJXTableModel myModel = new MZJXTableModel(androidViews);
+        AndroidViewsTableModel myModel = new AndroidViewsTableModel(androidViews);
 
         // JTable
         JXTable table = new JXTable(myModel);
         // 获得表格的表格列类
-        TableColumn columnChoice = table.getColumnModel().getColumn(MZJXTableModel.CHOICE_BOX_INDEX);
-        TableColumn columnClick = table.getColumnModel().getColumn(MZJXTableModel.CLICK_BOX_INDEX);
+        TableColumn columnChoice = table.getColumnModel().getColumn(AndroidViewsTableModel.CHOICE_BOX_INDEX);
+        TableColumn columnClick = table.getColumnModel().getColumn(AndroidViewsTableModel.CLICK_BOX_INDEX);
 
         // 实例化JCheckBox
         columnChoice.setCellEditor(new DefaultCellEditor(new JCheckBox()));
@@ -104,7 +100,7 @@ public class SimpleFormatSelectDialog extends JDialog {
 
     private void onOK() {
         // add your code here
-        SimpleFileController.loadFile(mProject, mEditor, mCurrentFile, mAndroidViews);
+        SimpleFileController.loadFile(mAnActionEvent, mAndroidViews);
         dispose();
     }
 

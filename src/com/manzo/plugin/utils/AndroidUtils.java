@@ -1,5 +1,6 @@
 package com.manzo.plugin.utils;
 
+import com.cy.util.UtilPlugin;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 
 public class AndroidUtils {
@@ -74,7 +74,7 @@ public class AndroidUtils {
 
         List<AndroidView> androidViews = new ArrayList<AndroidView>();
         for (PsiFile psiFile : getLayoutFiles(project)) {
-            androidViews.addAll(getIDsFromXML(psiFile));
+            androidViews.addAll(getAndroidViewsFromXML(psiFile));
         }
 
         return androidViews;
@@ -100,53 +100,42 @@ public class AndroidUtils {
         return psiFileList;
     }
 
-    @Nullable
-    public static PsiFile findXmlResource(Project project, String layoutName) {
-
-        String name = String.format("%s.xml", layoutName);
-        PsiFile[] foundFiles = FilenameIndex.getFilesByName(project, name, GlobalSearchScope.allScope(project));
-        if (foundFiles.length <= 0) {
-            return null;
-        }
-
-        return foundFiles[0];
-    }
 
     /**
      * AndroidView是自己定义的对象，不用太在意，用来装填数据
-     * @param f
+     * @param psiFile
      * @return
      */
     @NotNull
-    public static List<AndroidView> getIDsFromXML(@NotNull PsiFile f) {
-        final List<AndroidView> ret = new LinkedList<>();
-        f.accept(new XmlRecursiveElementVisitor() {
+    public static List<AndroidView> getAndroidViewsFromXML(@NotNull PsiFile psiFile) {
+        final List<AndroidView> androidViews = new LinkedList<>();
+        psiFile.accept(new XmlRecursiveElementVisitor() {
             @Override
             public void visitElement(final PsiElement element) {
                 super.visitElement(element);
                 if (element instanceof XmlTag) {
-                    XmlTag t = (XmlTag) element;
-                    XmlAttribute id = t.getAttribute("android:id", null);
-                    if (id == null) {
+                    XmlTag xmlTag = (XmlTag) element;
+                    XmlAttribute viewIdXmlAttribute = xmlTag.getAttribute("android:id", null);
+                    if (viewIdXmlAttribute == null) {
                         return;
                     }
-                    final String val = id.getValue();
-                    if (val == null) {
+                    final String viewId = viewIdXmlAttribute.getValue();
+                    if (viewId == null) {
                         return;
                     }
-                    ret.add(new AndroidView(val, t.getName(), id));
+                    androidViews.add(new AndroidView(viewId, xmlTag.getName(), viewIdXmlAttribute));
 
                 }
 
             }
         });
 
-        return ret;
+        return androidViews;
     }
 
     @Nullable
     public static AndroidView getViewType(@NotNull PsiFile f, String findId) {
-        List<AndroidView> views = getIDsFromXML(f);
+        List<AndroidView> views = getAndroidViewsFromXML(f);
         for (AndroidView view : views) {
             if (findId.equals(view.getId())) {
                 return view;
@@ -168,7 +157,7 @@ public class AndroidUtils {
             return;
         }
         String layoutName = editor.getSelectionModel().getSelectedText();
-        PsiFile xmlFile = AndroidUtils.findXmlResource(project, layoutName);
+        PsiFile xmlFile = UtilPlugin.getFirstPsiFileByFileName(e,layoutName+".xml");
         if (xmlFile == null) {
             presentation.setEnabled(false);
             return;

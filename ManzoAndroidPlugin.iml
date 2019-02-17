@@ -9,6 +9,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="com.github.adedayo.intellij.sdk:android:142.1" level="project" />
   </component>
 </module>
+
+<!--
+<orderEntry type="library" exported="" scope="PROVIDED" name="com.github.adedayo.intellij.sdk:android:142.1" level="project" />
+-->

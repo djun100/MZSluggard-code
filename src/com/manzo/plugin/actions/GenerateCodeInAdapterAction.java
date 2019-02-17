@@ -31,7 +31,7 @@ public class GenerateCodeInAdapterAction extends AnAction {
         if (file == null) {
             return;
         }
-        SimpleFileController.loadFileToAdapter(fatherProject, editor, file);
+        SimpleFileController.loadFileToAdapter(anActionEvent);
     }
 
     @Override

@@ -3,27 +3,25 @@ package com.manzo.plugin.bean;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-public class MZJXTableModel extends AbstractTableModel {
+public class AndroidViewsTableModel extends AbstractTableModel {
     public static final int CHOICE_BOX_INDEX = 0;
-    public static final int CLICK_BOX_INDEX = 3;
     private static final int ID_INDEX = 1;
     private static final int NAME_INDEX = 2;
+    public static final int CLICK_BOX_INDEX = 3;
     private List<AndroidView> mAndroidViews;
+
     // 定义表头数据
     private String[] mHead = {"添加对象", "id", "name", "添加Click"};
+    // 定义表格每一列的数据类型
+    private Class[] mTypeArray = {Boolean.class, String.class, String.class, Boolean.class};
+
     // 创建类型数组
     // Class[]
     // mTypeArray={Object.class,Object.class,Boolean.class,int.class,Object.class,Object.class};
 
-    public MZJXTableModel(List<AndroidView> androidViews) {
+    public AndroidViewsTableModel(List<AndroidView> androidViews) {
         mAndroidViews = androidViews;
     }
-
-    // 定义表格每一列的数据类型
-
-    private Class[] mTypeArray = {Boolean.class, String.class, String.class,
-            Boolean.class};
-
 
     // 获得表格的列数
     public int getColumnCount() {
@@ -32,7 +30,6 @@ public class MZJXTableModel extends AbstractTableModel {
 
     // 获得表格的行数
     public int getRowCount() {
-
         return mAndroidViews == null ? 0 : mAndroidViews.size();
     }
 
@@ -42,7 +39,23 @@ public class MZJXTableModel extends AbstractTableModel {
         return mHead[column];
     }
 
+    // 使表格具有可编辑性
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        //只有第二列id不可编辑
+        return columnIndex != ID_INDEX;
+    }
+
+    public void selectAllOrNull(boolean value, int columnIndex) {
+        if (columnIndex == CHOICE_BOX_INDEX || columnIndex == CLICK_BOX_INDEX) {
+            for (int i = 0; i < getRowCount(); i++) {
+                this.setValueAt(value, i, columnIndex);
+            }
+        }
+    }
+
     // 获得表格的单元格的数据
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (rowIndex >= mAndroidViews.size()) {
             return null;
@@ -66,22 +79,6 @@ public class MZJXTableModel extends AbstractTableModel {
                 break;
         }
         return tData;
-    }
-
-    // 使表格具有可编辑性
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        //只有第二个id不可编辑
-        return columnIndex != ID_INDEX;
-    }
-
-    public void selectAllOrNull(boolean value, int columnIndex) {
-        if (columnIndex == CHOICE_BOX_INDEX || columnIndex == CLICK_BOX_INDEX) {
-            for (int i = 0; i < getRowCount(); i++) {
-                this.setValueAt(value, i, columnIndex);
-            }
-        }
-
     }
 
     // 替换单元格的值

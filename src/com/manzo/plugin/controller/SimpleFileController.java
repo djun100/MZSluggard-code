@@ -1,5 +1,7 @@
 package com.manzo.plugin.controller;
 
+import com.cy.util.UtilPlugin;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
@@ -24,25 +26,25 @@ import java.util.Set;
  */
 public class SimpleFileController {
 
-    public static void loadFileByDialog(@NotNull Project project, Editor editor, PsiFile currentFile) throws IncorrectOperationException {
+    public static void loadFileByDialog(AnActionEvent anActionEvent) throws IncorrectOperationException {
 
         DocumentUtil.writeInRunUndoTransparentAction(new Runnable() {
             @Override
             public void run() {
-                SimpleFormatSelectDialog.showDialog(project, editor, currentFile);
+                SimpleFormatSelectDialog.showDialog(anActionEvent);
             }
         });
 
     }
 
-    public static void loadFile(@NotNull Project project, Editor editor, PsiFile currentFile,
-                                List<AndroidView> androidViews) throws IncorrectOperationException {
-        int offset = editor.getCaretModel().getOffset();
+    public static void loadFile(AnActionEvent anActionEvent, List<AndroidView> androidViews) throws IncorrectOperationException {
+        int offset = UtilPlugin.getEditor(anActionEvent).getCaretModel().getOffset();
+        Project project = UtilPlugin.getProject(anActionEvent);
         //获取到正在编辑器中编辑的方法体。
-        PsiElement psiElement = currentFile.findElementAt(offset);
-        PsiStatement psiStatement = PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class);
+        PsiElement currMethodPsiElement = UtilPlugin.getPsiFile(anActionEvent).findElementAt(offset);
+        PsiStatement psiStatement = PsiTreeUtil.getParentOfType(currMethodPsiElement, PsiStatement.class);
         //获取当前操作的java类
-        PsiClass psiClass = PsiTreeUtil.getParentOfType(psiElement, PsiClass.class);
+        PsiClass psiClass = PsiTreeUtil.getParentOfType(currMethodPsiElement, PsiClass.class);
         //获取原来的成变量
         Set<String> fieldSet = new HashSet<String>();
         for (PsiField field : psiClass.getFields()) {
@@ -54,8 +56,10 @@ public class SimpleFileController {
             methodSet.add(method.getName());
         }
 
+        // collect this.foo = "" and (this.)foo = ""
+        // collection already init variables
         final Set<String> thisSet = new HashSet<String>();
-        processElement(psiElement, thisSet);
+        processElement(currMethodPsiElement, thisSet);
 
         //获取当前工程的操作factory，要靠这个对象来进行添加对象的创建
         PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
@@ -88,7 +92,7 @@ public class SimpleFileController {
             }
             if (!thisSet.contains(v.getFieldName())) {
                 String sb1;
-                sb1 = String.format("%s = (%s) findViewById(%s);", v.getFieldName(), v.getName(), v.getId());
+                sb1 = String.format("%s = findViewById(%s);", v.getFieldName(), v.getName(), v.getId());
                 PsiStatement statementFromText = elementFactory.createStatementFromText(sb1, null);
                 initViewMethod.getBody().add(statementFromText);
             }
@@ -129,24 +133,22 @@ public class SimpleFileController {
     /**
      * TODO Dialog 可配置ViewHolder方法。
      *
-     * @param project
-     * @param editor
-     * @param currentFile
      * @throws IncorrectOperationException
      */
-    public static void loadFileToAdapter(@NotNull Project project, Editor editor, PsiFile currentFile) throws IncorrectOperationException {
+    public static void loadFileToAdapter(AnActionEvent anActionEvent) throws IncorrectOperationException {
 
         DocumentUtil.writeInRunUndoTransparentAction(new Runnable() {
             @Override
             public void run() {
-                String layoutName = editor.getSelectionModel().getSelectedText();
-                PsiFile xmlFile = AndroidUtils.findXmlResource(project, layoutName);
+                Project project=UtilPlugin.getProject(anActionEvent);
+                String layoutName = UtilPlugin.getSelectedText(anActionEvent);
+                PsiFile xmlFile = UtilPlugin.getFirstPsiFileByFileName(anActionEvent,layoutName+".xml");
                 if (xmlFile == null) {
                     return;
                 }
-                List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(xmlFile);
-                int offset = editor.getCaretModel().getOffset();
-                PsiElement psiElement = currentFile.findElementAt(offset);
+                List<AndroidView> androidViews = AndroidUtils.getAndroidViewsFromXML(xmlFile);
+                int offset = UtilPlugin.getEditor(anActionEvent).getCaretModel().getOffset();
+                PsiElement psiElement = UtilPlugin.getPsiFile(anActionEvent).findElementAt(offset);
                 PsiStatement psiStatement = PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class);
                 // collection class field
                 // check if we need to set them

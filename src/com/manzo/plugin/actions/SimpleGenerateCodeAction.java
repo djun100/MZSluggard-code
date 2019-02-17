@@ -2,11 +2,6 @@ package com.manzo.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
 import com.manzo.plugin.controller.SimpleFileController;
 import com.manzo.plugin.utils.AndroidUtils;
 
@@ -25,19 +20,7 @@ public class SimpleGenerateCodeAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
 
-        Project fatherProject = anActionEvent.getProject();
-        if (fatherProject == null) {
-            return;
-        }
-        Editor editor = CommonDataKeys.EDITOR.getData(anActionEvent.getDataContext());
-        if (editor == null) {
-            return;
-        }
-        PsiFile file = anActionEvent.getData(PlatformDataKeys.PSI_FILE);
-        if (file == null) {
-            return;
-        }
-        SimpleFileController.loadFileByDialog(fatherProject, editor, file);
+        SimpleFileController.loadFileByDialog(anActionEvent);
 
         System.out.println("测试网络接口，发起请求");
         System.out.println("测试网络接口："+getJsonByInternet());
